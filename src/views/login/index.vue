@@ -77,8 +77,10 @@ export default {
       try {
         await this.$refs.loginForm.validate()
         this.loading = true
-        this.$router.push({ path: '/' })
+        // console.log(this.$store.dispatch('user/loginAction'))
         await this.$store.dispatch('user/loginAction', this.loginForm)
+        console.log(111)
+        this.$router.push({ path: '/' })
       } finally {
         this.loading = false
       }

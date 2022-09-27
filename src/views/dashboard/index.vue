@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import { getInfo } from '@/api/user'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -15,13 +14,10 @@ export default {
       'name'
     ])
   },
-  created() {
-    this.getInfoAPI()
-  },
   methods: {
-    async getInfoAPI() {
-      await getInfo()
-    }
+    // async getInfoAPI() {
+    //   await getInfo()
+    // }
   }
 }
 </script>

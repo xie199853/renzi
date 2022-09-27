@@ -10,6 +10,11 @@ export function getInfo() {
     method: 'POST'
   })
 }
+export function getUserDetailById(id) {
+  return request({
+    url: `/sys/user/${id}`
+  })
+}
 
 export function logout() {
 }

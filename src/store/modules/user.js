@@ -36,8 +36,8 @@ export default {
       //  请求接口
       const res = await getInfo()
       const res1 = await getUserDetailById(res.userId)
-      console.log(111)
       const result = { ...res, ...res1 }
+      // console.log(111)
       commit('setUserInfo', result)
       return JSON.parse(JSON.stringify(res))
     },

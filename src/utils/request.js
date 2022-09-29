@@ -3,7 +3,7 @@ import store from '@/store'
 import axios from 'axios'
 import router from '@/router'
 import { Message } from 'element-ui'
-const timeOut = 1// s
+const timeOut = 3600// s
 function IsCheckTimeOut() {
   const currentTime = Date.now() // 现在的时间
   const timeStamp = (currentTime - store.getters.hrsaasTime) / 1000

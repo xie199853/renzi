@@ -14,13 +14,13 @@
           <span style="margin-right:16px;">{{ treeNode.manager }}</span>
         </el-col>
         <el-col>
-          <el-dropdown>
+          <el-dropdown @command="handleCommand">
             <span> 操作<i class="el-icon-arrow-down el-icon--right" />
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>添加子部门</el-dropdown-item>
-              <el-dropdown-item v-if="isRoot">编辑部门</el-dropdown-item>
-              <el-dropdown-item v-if="isRoot">删除部门</el-dropdown-item>
+              <el-dropdown-item command="add">添加子部门</el-dropdown-item>
+              <el-dropdown-item v-if="isRoot" command="edit">编辑部门</el-dropdown-item>
+              <el-dropdown-item v-if="isRoot" command="del">删除部门</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-col>
@@ -40,6 +40,18 @@ export default {
     isRoot: {
       type: Boolean,
       default: true
+    }
+  },
+  methods: {
+    handleCommand(type) {
+      if (type === 'add') {
+        // 新增
+        this.$emit('addDepts', this.treeNode)
+      } else if (type === 'edit') {
+        // 编辑
+      } else {
+        // 删除
+      }
     }
   }
 }

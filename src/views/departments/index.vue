@@ -1,30 +1,30 @@
 <template>
   <div class="departments-container">
     <el-card>
-      <treeTools :tree-node="company" is-root="false" />
+      <treeTools :tree-node="company" :is-root="false" @delDepts="getDepartments" @addDepts="addDepts" />
     </el-card>
     <el-tree :data="departs" :props="defaultProps" default-expand-all>
-      <treeTools slot-scope="{data}" :tree-node="data" />
+      <treeTools slot-scope="{data}" :tree-node="data" @delDepts="getDepartments" @addDepts="addDepts" />
     </el-tree>
+    <addDept :show-dialog.sync="showDialog" :tree-node="currentNode" />
   </div>
 </template>
-<!-- 丽姐刚刚在厕所打了我一拳 然后说子债父偿 -->
 <script>
 import { getDepartments } from '@/api/departments'
 import treeTools from './cpns/tree-tools.vue'
+import { tranListToTreeData } from '@/utils/index'
+import AddDept from './cpns/add-dept.vue' // 引入新增部门组件
 export default {
   name: 'HrsaasIndex',
-  components: { treeTools },
+  components: { treeTools, AddDept },
   data() {
     return {
-      departs: [{ name: '总裁办', manager: '曹操', children: [{ name: '董事会', manager: '曹丕' }] },
-        { name: '行政部', manager: '刘备' },
-        { name: '人事部', manager: '孙权' }],
+      showDialog: false,
+      departs: [],
       defaultProps: {
         label: 'name'
       },
-      company: { name: '江苏传智播客教育科技股份有限公司', manager: '负责人' }
-
+      company: { name: '江苏省', manager: '负责人', id: '' }
     }
   },
 
@@ -34,7 +34,14 @@ export default {
 
   methods: {
     async getDepartment() {
-      await getDepartments()
+      const { depts, companyName, companyManage, id } = await getDepartments()
+      console.log(depts)
+      this.departs = tranListToTreeData(depts, '')
+      this.company = { name: companyName, manager: companyManage, id: id }
+    },
+    addDepts(node) {
+      this.showDialog = true // 显示弹层
+      this.currentNode = node
     }
   }
 }

@@ -1,24 +1,25 @@
 <template>
-  <div class="departments-container">
+  <div v-loading="loading" class="departments-container">
     <el-card>
       <treeTools :tree-node="company" :is-root="false" @delDepts="getDepartments" @addDepts="addDepts" />
     </el-card>
     <el-tree :data="departs" :props="defaultProps" default-expand-all>
-      <treeTools slot-scope="{data}" :tree-node="data" @delDepts="getDepartments" @addDepts="addDepts" />
+      <treeTools slot-scope="{data}" :tree-node="data" @delDepts="getDepartments" @addDepts="addDepts" @editDept="editDept" @reflushed="getDepartment" />
     </el-tree>
-    <addDept :show-dialog.sync="showDialog" :tree-node="currentNode" />
+    <addDept ref="addDept" :show-dialog.sync="showDialog" :tree-node="currentNode" />
   </div>
 </template>
 <script>
 import { getDepartments } from '@/api/departments'
 import treeTools from './cpns/tree-tools.vue'
 import { tranListToTreeData } from '@/utils/index'
-import AddDept from './cpns/add-dept.vue' // 引入新增部门组件
+import addDept from './cpns/add-dept.vue' // 引入新增部门组件
 export default {
   name: 'HrsaasIndex',
-  components: { treeTools, AddDept },
+  components: { treeTools, addDept },
   data() {
     return {
+      loading: false,
       showDialog: false,
       departs: [],
       defaultProps: {
@@ -34,14 +35,25 @@ export default {
 
   methods: {
     async getDepartment() {
-      const { depts, companyName, companyManage, id } = await getDepartments()
-      console.log(depts)
-      this.departs = tranListToTreeData(depts, '')
-      this.company = { name: companyName, manager: companyManage, id: id }
+      try {
+        this.loading = true
+        const { depts, companyName, companyManage, id } = await getDepartments()
+        console.log(depts)
+        this.departs = tranListToTreeData(depts, '')
+        this.company = { name: companyName, manager: companyManage, id: id }
+      } finally {
+        this.loading = false
+      }
     },
     addDepts(node) {
       this.showDialog = true // 显示弹层;
       this.currentNode = node
+    },
+    editDept(node) {
+      console.log(node)
+      this.showDialog = true
+      this.currentNode = { ...node }
+      this.$refs.addDept.formData = { ...node }
     }
   }
 }

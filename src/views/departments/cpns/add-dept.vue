@@ -1,6 +1,6 @@
 <template>
   <!-- 新增部门的弹层 -->
-  <el-dialog title="新增部门" :visible="showDialog" @close="handleClose">
+  <el-dialog :title="title" :visible="showDialog" @close="handleClose">
     <!-- 表单组件  el-form   label-width设置label的宽度   -->
     <!-- 匿名插槽 -->
     <el-form ref="addDeptForm" :model="formData" :rules="rules" label-width="120px">
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getEmployeeSimple, addDepartments } from '@/api/employees'
+import { getEmployeeSimple, addDepartments, updateDepartments } from '@/api/employees'
 import { getDepartments } from '@/api/departments'
 export default {
   props: {
@@ -52,13 +52,29 @@ export default {
       const { depts } = await getDepartments()
       // depts是所有的部门数据
       // 如何去找技术部所有的子节点
-      const isRepeat = depts.filter(item => item.pid === this.treeNode.id).some(item => item.name === value)
+      let isRepeat = true
+      if (this.formData.id) {
+        const deptstj1 = depts.filter(item => item.pid === this.treeNode.pid && item.id !== this.treeNode.id)
+        isRepeat = deptstj1.some(ele => ele.name === value)
+      } else {
+        const deptstj = depts.filter(item => item.pid === this.treeNode.id)
+        isRepeat = deptstj.some(ele => ele.name === value)
+      }
       isRepeat ? callback(new Error(`同级部门下已经有${value}的部门了`)) : callback()
     }
     const checkCodeRepeat = async(rule, value, callback) => {
       // 先要获取最新的组织架构数据
       const { depts } = await getDepartments()
-      const isRepeat = depts.some(item => item.code === value)
+      let isRepeat = true
+      // 编辑模式下，让我自己和自己校验？
+      // 解决方案 对比的过程中 把自己排除掉 然后再去对比
+      if (this.formData.id) { // 编辑
+        // depts [{},{},{},我]
+        // isRepeat = depts.some(item => 排除自己 && item.code === value)
+        isRepeat = depts.some(item => item.id !== this.formData.id && item.code === value)
+      } else {
+        isRepeat = depts.some(item => item.code === value)
+      }
       isRepeat ? callback(new Error(`组织架构中已经有部门使用${value}编码`)) : callback()
     }
     return {
@@ -87,6 +103,11 @@ export default {
       }
     }
   },
+  computed: {
+    title() {
+      return this.formData.id ? '编辑模式' : '新增模式'
+    }
+  },
   methods: {
     handleClose() {
       this.$emit('update:showDialog', false)
@@ -108,9 +129,13 @@ export default {
         this.loading = true
         // 因为是添加子部门，所以我们需要将新增的部门pid设置当前部门的id，新增的部门就成了自己的子部门
         // 确认按钮的loading状态
-        await addDepartments({ ...this.formData, pid: this.treeNode.id })
+        if (this.formData.id) {
+          await updateDepartments(this.formData)
+        } else {
+          await addDepartments({ ...this.formData, pid: this.treeNode.id })
+        }
         // 接收新增成功之后，消息提示成功
-        this.$message.success('新增成功')
+        this.$message.success(`${this.formData.id ? '编辑' : '新增'}成功`)
         // 刷新父组件的组织架构列表
         this.$parent.getDepartment()
         // 关闭弹窗

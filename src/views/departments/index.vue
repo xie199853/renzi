@@ -40,7 +40,7 @@ export default {
       this.company = { name: companyName, manager: companyManage, id: id }
     },
     addDepts(node) {
-      this.showDialog = true // 显示弹层
+      this.showDialog = true // 显示弹层;
       this.currentNode = node
     }
   }

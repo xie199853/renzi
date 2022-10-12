@@ -38,7 +38,7 @@ export default {
       try {
         this.loading = true
         const { depts, companyName, companyManage, id } = await getDepartments()
-        console.log(depts)
+        // console.log(depts)
         this.departs = tranListToTreeData(depts, '')
         this.company = { name: companyName, manager: companyManage, id: id }
       } finally {

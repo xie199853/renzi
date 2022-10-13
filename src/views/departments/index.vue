@@ -1,10 +1,10 @@
 <template>
   <div v-loading="loading" class="departments-container">
     <el-card>
-      <treeTools :tree-node="company" :is-root="false" @delDepts="getDepartments" @addDepts="addDepts" />
+      <treeTools :tree-node="company" :is-root="false" @delDepts="getDepartment" @addDepts="addDepts" />
     </el-card>
     <el-tree :data="departs" :props="defaultProps" default-expand-all>
-      <treeTools slot-scope="{data}" :tree-node="data" @delDepts="getDepartments" @addDepts="addDepts" @editDept="editDept" @reflushed="getDepartment" />
+      <treeTools slot-scope="{data}" :tree-node="data" @delDepts="getDepartment" @addDepts="addDepts" @editDept="editDept" @reflushed="getDepartment" />
     </el-tree>
     <addDept ref="addDept" :show-dialog.sync="showDialog" :tree-node="currentNode" />
   </div>

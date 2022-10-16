@@ -13,6 +13,11 @@
     <el-card>
       <el-table v-loading="loading" border :data="list">
         <el-table-column label="序号" type="index" sortable="" width="80" />
+        <el-table-column label="头像">
+          <template slot-scope="{row}">
+            <img style="width:100px;height:100px;" :src="row.staffPhoto" alt="" @click="genqrcode(row.staffPhoto)">
+          </template>
+        </el-table-column>
         <el-table-column label="姓名" prop="username" />
         <el-table-column label="工号" prop="workNumber" />
         <el-table-column label="聘用形式" prop="formOfEmployment" :formatter="formatterFn" />
@@ -22,9 +27,9 @@
             {{ row.timeOfEntry | formatDate }}
           </template>
         </el-table-column>
-        <el-table-column label="账户状态" prop="enableState" >
+        <el-table-column label="账户状态" prop="enableState">
           <template slot-scope="{row}">
-            <el-switch :value="row.enableState === 1" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <el-switch :value="row.enableState === 1" active-color="#13ce66" inactive-color="#ff4949" />
           </template>
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="280">
@@ -52,7 +57,14 @@
         />
       </el-row>
     </el-card>
-    <addEmployee :dialog-viaible.sync="dialogViaible"></addEmployee>
+    <addEmployee :dialog-viaible.sync="dialogViaible" />
+    <el-dialog
+      title="预览头像"
+      :visible.sync="dialogViaibleQrCode"
+      width="50%"
+    >
+      <canvas ref="canvas" />
+    </el-dialog>
   </div>
 </template>
 
@@ -61,6 +73,7 @@ import addEmployee from './components/add-employee.vue'
 // import PageTools from '@/components/PageTools'
 import EnumHireType from '@/api/constant/employees'
 import { getEmployeeList, delEmployee } from '@/api/employees'
+import QRCode from 'qrcode'
 export default {
   name: 'HrsaasIndex',
   components: {
@@ -76,7 +89,8 @@ export default {
       total: 0, // 总数
       loading: false,
       hireType: EnumHireType.hireType,
-      dialogViaible: false
+      dialogViaible: false,
+      dialogViaibleQrCode: false
     }
   },
   mounted() {
@@ -154,11 +168,20 @@ export default {
     },
     goDetail(row) {
       this.$router.push('/employees/detail/' + row.id)
+    },
+    genqrcode(url) {
+      if (!url) return this.$message.error('暂无头像')
+      this.dialogViaibleQrCode = true
+      this.$nextTick(() => {
+        QRCode.toCanvas(this.$refs.canvas, url, function(error) {
+          if (error) console.log(error)
+          console.log('success')
+        })
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-
 </style>
